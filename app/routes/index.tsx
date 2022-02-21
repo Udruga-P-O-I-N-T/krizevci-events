@@ -5,6 +5,8 @@ import {
 } from "@heroicons/react/solid";
 import { LoaderFunction, useLoaderData } from "remix";
 import { gql, GraphQLClient } from "graphql-request";
+import { isToday, isTomorrow } from "date-fns";
+import clsx from "clsx";
 
 type Person = {
   name: string;
@@ -21,6 +23,7 @@ type Event = {
   endDate: string;
   location: Location;
   organizer: Person;
+  url: string;
 };
 
 const query = gql`
@@ -36,6 +39,7 @@ const query = gql`
       organizer {
         name
       }
+      url
     }
   }
 `;
@@ -54,56 +58,85 @@ export let loader: LoaderFunction = async () => {
   return data.events;
 };
 
-export default function List() {
+function Event({ event }: { event: Event }) {
+  const startDate = new Date(event.startDate);
+  const isTodayEvent = isToday(startDate);
+  const isTomorrowEvent = isTomorrow(startDate);
+
+  const formattedStartDate = new Intl.DateTimeFormat("hr", {
+    dateStyle: "full",
+    timeStyle: "short",
+  }).format(startDate);
+
+  return (
+    <li key={event.id}>
+      <a
+        href={event.url ?? undefined}
+        className={clsx(
+          "block",
+          isTodayEvent && "bg-green-50",
+          isTomorrowEvent && "bg-yellow-50"
+        )}
+      >
+        <div className="px-4 py-4 sm:px-6">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-indigo-600 truncate">
+              {event.name}
+            </p>
+            <div className="ml-2 flex-shrink-0 flex">
+              {isTodayEvent && (
+                <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-md bg-green-400 text-gray-700">
+                  Danas
+                </p>
+              )}
+              {isTomorrowEvent && (
+                <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-md bg-yellow-400 text-gray-700">
+                  Sutra
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="mt-2 sm:flex sm:justify-between">
+            <div className="sm:flex">
+              <p className="flex items-center text-sm text-gray-500">
+                <UsersIcon
+                  className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
+                  aria-hidden="true"
+                />
+                {event.organizer.name ?? ""}
+              </p>
+              <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
+                <LocationMarkerIcon
+                  className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
+                  aria-hidden="true"
+                />
+                {event.location.name ?? ""}
+              </p>
+            </div>
+            <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+              <CalendarIcon
+                className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
+                aria-hidden="true"
+              />
+              <p>
+                <time dateTime={event.startDate}>{formattedStartDate}</time>
+              </p>
+            </div>
+          </div>
+        </div>
+      </a>
+    </li>
+  );
+}
+
+export default function EventList() {
   const events = useLoaderData<LoaderData>();
 
   return (
     <div className="bg-white shadow overflow-hidden sm:rounded-md container mx-auto max-w-screen-lg">
       <ul role="list" className="divide-y divide-gray-200">
         {events.map((event) => (
-          <li key={event.id}>
-            <a href="#" className="block hover:bg-gray-50">
-              <div className="px-4 py-4 sm:px-6">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-indigo-600 truncate">
-                    {event.name}
-                  </p>
-                  <div className="ml-2 flex-shrink-0 flex">
-                    <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                      {event.startDate ?? ""}
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-2 sm:flex sm:justify-between">
-                  <div className="sm:flex">
-                    <p className="flex items-center text-sm text-gray-500">
-                      <UsersIcon
-                        className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                        aria-hidden="true"
-                      />
-                      {event.organizer.name ?? ""}
-                    </p>
-                    <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                      <LocationMarkerIcon
-                        className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                        aria-hidden="true"
-                      />
-                      {event.location.name ?? ""}
-                    </p>
-                  </div>
-                  <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                    <CalendarIcon
-                      className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                      aria-hidden="true"
-                    />
-                    <p>
-                      <time dateTime={event.startDate}>{event.startDate}</time>
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </a>
-          </li>
+          <Event key={event.id} event={event} />
         ))}
       </ul>
     </div>
