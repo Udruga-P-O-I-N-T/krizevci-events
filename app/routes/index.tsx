@@ -1,11 +1,11 @@
 import {
-  CalendarIcon,
+  ArrowSmDownIcon,
   LocationMarkerIcon,
   UsersIcon,
 } from "@heroicons/react/solid";
 import { LoaderFunction, useLoaderData } from "remix";
 import { gql, GraphQLClient } from "graphql-request";
-import { isToday, isTomorrow } from "date-fns";
+import { isToday, isTomorrow, isPast, isFuture } from "date-fns";
 import clsx from "clsx";
 
 type Person = {
@@ -60,13 +60,21 @@ export let loader: LoaderFunction = async () => {
 
 function Event({ event }: { event: Event }) {
   const startDate = new Date(event.startDate);
-  const isTodayEvent = isToday(startDate);
+  const endDate = event.endDate ? new Date(event.endDate) : null;
+
+  const isTodayEvent =
+    isToday(startDate) ||
+    (isPast(startDate) && endDate !== null && isFuture(endDate));
+
   const isTomorrowEvent = isTomorrow(startDate);
 
-  const formattedStartDate = new Intl.DateTimeFormat("hr", {
+  const dateFormatter = new Intl.DateTimeFormat("hr", {
     dateStyle: "full",
     timeStyle: "short",
-  }).format(startDate);
+  });
+
+  const formattedStartDate = dateFormatter.format(startDate);
+  const formattedEndDate = endDate && dateFormatter.format(endDate);
 
   return (
     <li key={event.id}>
@@ -113,14 +121,16 @@ function Event({ event }: { event: Event }) {
                 {event.location.name ?? ""}
               </p>
             </div>
-            <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-              <CalendarIcon
-                className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                aria-hidden="true"
-              />
-              <p>
-                <time dateTime={event.startDate}>{formattedStartDate}</time>
-              </p>
+            <div className="grid justify-items-end mt-2 text-sm text-gray-500 sm:mt-0">
+              <time dateTime={event.startDate}>{formattedStartDate}</time>
+              {formattedEndDate && (
+                <>
+                  <ArrowSmDownIcon className="h-4 w-4 text-gray-500" />
+                  <time className="mt-1" dateTime={event.endDate}>
+                    {formattedEndDate}
+                  </time>
+                </>
+              )}
             </div>
           </div>
         </div>
