@@ -1,8 +1,4 @@
-import {
-  ArrowSmDownIcon,
-  LocationMarkerIcon,
-  UsersIcon,
-} from "@heroicons/react/solid";
+import { ArrowSmDownIcon, LocationMarkerIcon } from "@heroicons/react/solid";
 import { LoaderFunction, useLoaderData } from "remix";
 import { gql, GraphQLClient } from "graphql-request";
 import { isToday, isTomorrow, isPast, isFuture } from "date-fns";
@@ -77,64 +73,61 @@ function Event({ event }: { event: Event }) {
   const formattedEndDate = endDate && dateFormatter.format(endDate);
 
   return (
-    <li key={event.id}>
-      <a
-        href={event.url ?? undefined}
-        className={clsx(
-          "block",
-          isTodayEvent && "bg-green-50",
-          isTomorrowEvent && "bg-yellow-50"
-        )}
-      >
-        <div className="px-4 py-4 sm:px-6">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-indigo-600 truncate">
+    <li
+      key={event.id}
+      className={clsx(
+        "mb-4 rounded-xl px-4 py-4 sm:px-6 flex flex-col sm:flex-row justify-between",
+        isTodayEvent && "bg-green-50",
+        isTomorrowEvent && "bg-yellow-50",
+        !(isTodayEvent || isTomorrowEvent) && "bg-stone-50"
+      )}
+    >
+      <div className="flex flex-col">
+        <p className="text-base font-light text-gray-600 mb-1">
+          {event.organizer?.name ?? ""}
+        </p>
+        <h1 className="text-base font-bold tracking-tight">
+          {event.url ? (
+            <a href={event.url} className="text-blue-800">
               {event.name}
+            </a>
+          ) : (
+            event.name
+          )}
+        </h1>
+        {event.location?.name && (
+          <p className="mt-4 flex items-center text-sm text-gray-600">
+            <LocationMarkerIcon
+              className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
+              aria-hidden="true"
+            />
+            {event.location.name}
+          </p>
+        )}
+      </div>
+      <div className="flex flex-col sm:items-end sm:ml-8 mt-4 sm:mt-0">
+        <div className="mb-3 sm:mb-4 flex-shrink-0 flex">
+          {isTodayEvent && (
+            <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-md bg-green-400 text-gray-700">
+              Danas
             </p>
-            <div className="ml-2 flex-shrink-0 flex">
-              {isTodayEvent && (
-                <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-md bg-green-400 text-gray-700">
-                  Danas
-                </p>
-              )}
-              {isTomorrowEvent && (
-                <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-md bg-yellow-400 text-gray-700">
-                  Sutra
-                </p>
-              )}
-            </div>
-          </div>
-          <div className="mt-2 sm:flex sm:justify-between">
-            <div className="sm:flex">
-              <p className="flex items-center text-sm text-gray-500">
-                <UsersIcon
-                  className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                  aria-hidden="true"
-                />
-                {event.organizer.name ?? ""}
-              </p>
-              <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                <LocationMarkerIcon
-                  className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                  aria-hidden="true"
-                />
-                {event.location.name ?? ""}
-              </p>
-            </div>
-            <div className="grid justify-items-end mt-2 text-sm text-gray-500 sm:mt-0">
-              <time dateTime={event.startDate}>{formattedStartDate}</time>
-              {formattedEndDate && (
-                <>
-                  <ArrowSmDownIcon className="h-4 w-4 text-gray-500" />
-                  <time className="mt-1" dateTime={event.endDate}>
-                    {formattedEndDate}
-                  </time>
-                </>
-              )}
-            </div>
-          </div>
+          )}
+          {isTomorrowEvent && (
+            <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-md bg-yellow-400 text-gray-700">
+              Sutra
+            </p>
+          )}
         </div>
-      </a>
+        <div className="flex flex-col sm:items-end text-sm text-gray-600 truncate">
+          <time dateTime={event.startDate}>{formattedStartDate}</time>
+          {formattedEndDate && (
+            <>
+              <ArrowSmDownIcon className="h-4 w-4 text-gray-600" />
+              <time dateTime={event.endDate}>{formattedEndDate}</time>
+            </>
+          )}
+        </div>
+      </div>
     </li>
   );
 }
@@ -143,12 +136,12 @@ export default function EventList() {
   const events = useLoaderData<LoaderData>();
 
   return (
-    <div className="bg-white shadow overflow-hidden sm:rounded-md container mx-auto max-w-screen-lg">
-      <ul role="list" className="divide-y divide-gray-200">
+    <main className="overflow-hidden sm:rounded-md container mx-auto max-w-screen-lg px-4">
+      <ul role="list">
         {events.map((event) => (
           <Event key={event.id} event={event} />
         ))}
       </ul>
-    </div>
+    </main>
   );
 }
