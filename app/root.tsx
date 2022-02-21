@@ -17,7 +17,9 @@ export function links() {
 }
 
 export const meta: MetaFunction = () => {
-  return { title: "New Remix App" };
+  return {
+    title: "Događanja u Križevcima",
+  };
 };
 
 export default function App() {
