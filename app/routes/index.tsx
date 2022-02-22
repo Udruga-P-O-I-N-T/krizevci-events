@@ -15,6 +15,8 @@ type Location = {
 type Event = {
   id: string;
   name?: string | null;
+  image?: string | null;
+  description?: string | null;
   startDate?: string | null;
   endDate?: string | null;
   location?: Location | null;
@@ -27,6 +29,8 @@ const query = gql`
     events {
       id
       name
+      image
+      description
       startDate
       endDate
       location {
