@@ -5,21 +5,21 @@ import { isToday, isTomorrow, isPast, isFuture } from "date-fns";
 import clsx from "clsx";
 
 type Person = {
-  name: string;
+  name?: string | null;
 };
 
 type Location = {
-  name: string;
+  name?: string | null;
 };
 
 type Event = {
   id: string;
-  name: string;
-  startDate: string;
-  endDate: string;
-  location: Location;
-  organizer: Person;
-  url: string;
+  name?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  location?: Location | null;
+  organizer?: Person | null;
+  url?: string | null;
 };
 
 const query = gql`
@@ -55,6 +55,11 @@ export let loader: LoaderFunction = async () => {
 };
 
 function Event({ event }: { event: Event }) {
+  if (!event.startDate) {
+    console.warn("Missing start date:", event);
+    return null;
+  }
+
   const startDate = new Date(event.startDate);
   const endDate = event.endDate ? new Date(event.endDate) : null;
 
@@ -119,11 +124,11 @@ function Event({ event }: { event: Event }) {
           )}
         </div>
         <div className="flex flex-col sm:items-end text-sm text-gray-600 truncate">
-          <time dateTime={event.startDate}>{formattedStartDate}</time>
+          <time dateTime={event.startDate ?? ""}>{formattedStartDate}</time>
           {formattedEndDate && (
             <>
               <ArrowSmDownIcon className="h-4 w-4 text-gray-600" />
-              <time dateTime={event.endDate}>{formattedEndDate}</time>
+              <time dateTime={event.endDate ?? ""}>{formattedEndDate}</time>
             </>
           )}
         </div>
