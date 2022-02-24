@@ -49,7 +49,7 @@ type LoaderData = Array<Event>;
 export let loader: LoaderFunction = async () => {
   const client = new GraphQLClient(
     process.env.NODE_ENV === "production"
-      ? "https://krizevci-api.herokuapp.com/graphql"
+      ? "https://krizevci-api.fly.dev/graphql"
       : "http://localhost:8080/graphql"
   );
 
