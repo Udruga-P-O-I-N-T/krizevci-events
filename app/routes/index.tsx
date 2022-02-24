@@ -88,7 +88,7 @@ function Event({ event }: { event: Event }) {
         "mb-4 rounded-xl px-4 py-4 sm:px-6 flex flex-col sm:flex-row justify-between",
         isTodayEvent && "bg-green-50",
         isTomorrowEvent && "bg-yellow-50",
-        !(isTodayEvent || isTomorrowEvent) && "bg-stone-50"
+        !(isTodayEvent || isTomorrowEvent) && "bg-white"
       )}
     >
       <div className="flex flex-col">
