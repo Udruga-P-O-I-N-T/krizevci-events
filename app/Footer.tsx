@@ -1,10 +1,16 @@
 const navigation = {
   main: [
-    { name: "GitHub", href: "https://github.com/radicek/krizevci-events" },
-    { name: "API GitHub", href: "https://github.com/radicek/krizevci-api" },
+    {
+      name: "GitHub",
+      href: "https://github.com/Udruga-P-O-I-N-T/krizevci-events",
+    },
+    {
+      name: "API GitHub",
+      href: "https://github.com/Udruga-P-O-I-N-T/krizevci-api",
+    },
     {
       name: "API GraphQL",
-      href: "https://krizevci-api.herokuapp.com/graphql",
+      href: "https://krizevci-api.fly.dev//graphql",
     },
   ],
 };
